@@ -1,34 +1,41 @@
 # Utility-WinUI
 
-A Windows desktop version of Utility, built with WinUI 3 and a WinUI Gallery-style navigation layout.
+Utility is a Windows desktop collection of practical text, data, and formatting tools, built with WinUI 3. Work with input locally in a simple, keyboard-friendly workspace; the app does not send input to a service.
 
-## Utilities
+![Utility social preview](assets/social-preview.png)
 
-- HTML encode and decode
-- URL encode and decode
-- HEX to RGB
-- SQL `IN` clause builder
-- GUID generator
-- JSON formatter and minifier
-- XML formatter and minifier
-- SQL formatter
+## Features
 
-All processing happens locally in the app.
+- Encode and decode HTML entities and URL components
+- Convert 3- or 6-digit HEX colors to RGB
+- Build escaped SQL `IN` clauses from comma- or line-separated values
+- Generate GUIDs
+- Format or minify JSON and XML
+- Format common SQL clauses
+
+See the [user guide](docs/USER_GUIDE.md) for tool behavior and examples, and the [architecture guide](ARCHITECTURE.md) for the app structure and data flow.
 
 ## Build and run
 
 On Windows, install Visual Studio 2026 (18.0 or newer) with the **.NET desktop development** workload, the .NET 10 SDK, and the Windows 10/11 SDK. Open `src/Utility.WinUI.csproj`, restore NuGet packages, and run the project. The project targets .NET 10 and uses the Windows App SDK 1.6.
 
-## Tests
-
-Run the cross-platform utility tests with:
+Run the cross-platform core tests from the repository root:
 
 ```sh
-dotnet test tests/Utility.Core.Tests/Utility.Core.Tests.csproj
+dotnet test tests/Utility.Core.Tests/Utility.Core.Tests.csproj --configuration Release
 ```
 
-## GitHub Actions
+## CI and releases
 
-The **Build and test** workflow runs on pushes to `main` or `master`, pull requests, and manual dispatch. It runs the tests, builds and publishes a self-contained `win-x64` app, and uploads `Utility-WinUI-win-x64.zip` as a workflow artifact.
+The **Build and test** GitHub Actions workflow runs core tests, builds the Windows app, and uploads a self-contained `win-x64` ZIP artifact for pushes to `main` or `master`, pull requests, and manual dispatch. The **Release** workflow runs on `v*` tags or can be started manually with an existing tag; it attaches the self-contained ZIP to a GitHub Release. See [GitHub Actions](.github/workflows/) and [release instructions](docs/USER_GUIDE.md#releasing).
 
-The **Release** workflow runs when a `v*` tag is pushed, or can be started manually with an existing version tag. It reruns the tests and attaches a self-contained `win-x64` ZIP to a GitHub Release. To publish a release, push a version tag such as `v1.0.0`.
+## Project documentation
+
+- [User guide](docs/USER_GUIDE.md)
+- [Architecture](ARCHITECTURE.md)
+- [Changelog](CHANGELOG.md)
+- [Brand assets](assets/)
+
+## License
+
+See [LICENSE](LICENSE).
