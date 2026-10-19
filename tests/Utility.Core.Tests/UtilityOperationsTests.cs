@@ -71,7 +71,7 @@ public class UtilityOperationsTests
     [Fact]
     public void Run_rejects_invalid_json()
     {
-        Assert.Throws<JsonException>(() => UtilityOperations.Run("JSON formatter", "Format", "{invalid}"));
+        Assert.ThrowsAny<JsonException>(() => UtilityOperations.Run("JSON formatter", "Format", "{invalid}"));
     }
 
     [Fact]
