@@ -14,4 +14,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.6.250205002" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="Utility.Core/Utility.Core.csproj" />
+  </ItemGroup>
 </Project>

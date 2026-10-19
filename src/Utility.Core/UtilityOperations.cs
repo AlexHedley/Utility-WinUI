@@ -5,9 +5,9 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
-namespace UtilityWinUI;
+namespace Utility.Core;
 
-internal static class UtilityOperations
+public static class UtilityOperations
 {
     public static string Run(string tool, string action, string input) => (tool, action) switch
     {
