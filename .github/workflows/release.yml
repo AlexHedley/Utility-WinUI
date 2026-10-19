@@ -42,7 +42,7 @@ jobs:
           -p:WindowsPackageType=None
 
       - name: Package app
-        run: Compress-Archive -Path artifacts/Utility-WinUI-win-x64/* -DestinationPath artifacts/Utility-WinUI-${{ inputs.tag || github.ref_name }}-win-x64.zip
+        run: Compress-Archive -Path artifacts/Utility-WinUI-win-x64/* -DestinationPath artifacts/Utility-WinUI-win-x64.zip
         shell: pwsh
 
       - name: Create GitHub Release
@@ -51,5 +51,5 @@ jobs:
           tag_name: ${{ inputs.tag || github.ref_name }}
           name: Utility-WinUI ${{ inputs.tag || github.ref_name }}
           generate_release_notes: true
-          files: artifacts/Utility-WinUI-${{ inputs.tag || github.ref_name }}-win-x64.zip
+          files: artifacts/Utility-WinUI-win-x64.zip
           fail_on_unmatched_files: true
