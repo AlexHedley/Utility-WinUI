@@ -104,4 +104,3 @@ To publish a release, push a version tag such as `v1.0.0`. The **Release** workf
 ## Brand assets
 
 Original project artwork is in [`assets/`](../assets/): an SVG logo, an SVG app mark, a Windows `.ico` application icon, and a 1280×640 PNG social preview. The social preview can be selected in the repository's GitHub social preview settings. The application icon is configured in the WinUI project.
-

@@ -1,6 +1,6 @@
 # Changelog
 
-Notable changes to Utility-WinUI are documented here. The project has not published a versioned release yet.
+Notable changes to Utility-WinUI are documented here.
 
 ## Unreleased
 
@@ -11,4 +11,3 @@ Notable changes to Utility-WinUI are documented here. The project has not publis
 - Cross-platform core library and automated utility-operation tests.
 - Windows build/test and tagged-release GitHub Actions workflows.
 - User and architecture documentation, Mermaid diagrams, and original Utility branding assets.
-

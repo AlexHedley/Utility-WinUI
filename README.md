@@ -2,6 +2,8 @@
 
 Utility is a Windows desktop collection of practical text, data, and formatting tools, built with WinUI 3. Work with input locally in a simple, keyboard-friendly workspace; the app does not send input to a service.
 
+![Utility logo](assets/utility-logo.svg)
+
 ![Utility social preview](assets/social-preview.png)
 
 ## Features

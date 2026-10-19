@@ -114,4 +114,3 @@ The build/test workflow runs on Windows and publishes a downloadable workflow ar
 | `docs/USER_GUIDE.md` | User, tool, developer, and release instructions |
 | `assets/` | Original logo, icon, and social preview artwork |
 | `.github/workflows/` | Windows build/test and release automation |
-
