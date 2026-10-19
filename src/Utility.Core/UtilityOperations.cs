@@ -2,7 +2,6 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Utility.Core;
@@ -54,7 +53,11 @@ public static class UtilityOperations
     {
         var values = input
             .Split([',', '\r', '\n'], StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
-            .Select(value => value.Trim('\'', '"'))
+            .Select(value =>
+                value.Length >= 2 &&
+                ((value[0] == '\'' && value[^1] == '\'') || (value[0] == '"' && value[^1] == '"'))
+                    ? value[1..^1]
+                    : value)
             .Where(value => value.Length > 0)
             .Select(value => $"'{value.Replace("'", "''", StringComparison.Ordinal)}'")
             .ToArray();
@@ -78,7 +81,23 @@ public static class UtilityOperations
 
     private static string FormatXml(string input, bool indented)
     {
-        var document = XDocument.Parse(input);
+        var document = XDocument.Parse(input, indented ? LoadOptions.None : LoadOptions.PreserveWhitespace);
+        if (!indented)
+        {
+            foreach (var element in document.Descendants().Where(element => element.Elements().Any()))
+            {
+                foreach (var whitespace in element.Nodes()
+                    .OfType<XText>()
+                    .Where(text =>
+                        string.IsNullOrWhiteSpace(text.Value) &&
+                        (text.Value.Contains('\r') || text.Value.Contains('\n')))
+                    .ToArray())
+                {
+                    whitespace.Remove();
+                }
+            }
+        }
+
         return document.ToString(indented ? SaveOptions.None : SaveOptions.DisableFormatting);
     }
 
@@ -100,6 +119,7 @@ public static class UtilityOperations
             var upper = value.ToUpperInvariant();
             if (SqlLineBreakKeywords.Contains(upper))
             {
+                TrimTrailingWhitespace(sql);
                 if (sql.Length > 0 && sql[^1] != '\n')
                 {
                     sql.AppendLine();
@@ -153,15 +173,21 @@ public static class UtilityOperations
                 continue;
             }
 
-            if (character is '\'' or '"' or '`')
+            if (character is '\'' or '"' or '`' or '[')
             {
                 AppendWord();
-                quote = character;
+                quote = character == '[' ? ']' : character;
                 sql.Append(character);
             }
-            else if (char.IsLetter(character))
+            else if (char.IsLetterOrDigit(character) || character is '_' or '@' or '#' or '$')
             {
                 word.Append(character);
+            }
+            else if (character is '\r' or '\n')
+            {
+                AppendWord();
+                TrimTrailingWhitespace(sql);
+                sql.Append(character);
             }
             else
             {
@@ -171,7 +197,15 @@ public static class UtilityOperations
         }
 
         AppendWord();
-        return Regex.Replace(sql.ToString().Trim(), @"[ \t]+\r?\n", Environment.NewLine);
+        return sql.ToString().Trim();
+    }
+
+    private static void TrimTrailingWhitespace(StringBuilder value)
+    {
+        while (value.Length > 0 && value[^1] is ' ' or '\t')
+        {
+            value.Length--;
+        }
     }
 
     private static readonly HashSet<string> SqlLineBreakKeywords =

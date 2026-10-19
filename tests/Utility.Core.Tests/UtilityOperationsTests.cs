@@ -37,6 +37,7 @@ public class UtilityOperationsTests
     [InlineData("1,O'Reilly,3", "IN ('1', 'O''Reilly', '3')")]
     [InlineData("alpha\nbeta", "IN ('alpha', 'beta')")]
     [InlineData("\"one\",'two'", "IN ('one', 'two')")]
+    [InlineData("'tis,James'", "IN ('''tis', 'James''')")]
     public void Run_builds_escaped_sql_in_clauses(string input, string expected)
     {
         Assert.Equal(expected, UtilityOperations.Run("SQL IN builder", "Build", input));
@@ -85,6 +86,14 @@ public class UtilityOperationsTests
     }
 
     [Fact]
+    public void Run_preserves_mixed_content_whitespace_when_minifying_xml()
+    {
+        var minified = UtilityOperations.Run("XML formatter", "Minify", "<p><b>one</b> <b>two</b></p>");
+
+        Assert.Equal("<p><b>one</b> <b>two</b></p>", minified);
+    }
+
+    [Fact]
     public void Run_rejects_invalid_xml()
     {
         Assert.Throws<XmlException>(() => UtilityOperations.Run("XML formatter", "Format", "<root>"));
@@ -96,6 +105,26 @@ public class UtilityOperationsTests
         var result = UtilityOperations.Run("SQL formatter", "Format", "select 'from text' from users where active = 1");
 
         Assert.Equal($"SELECT 'from text'{Environment.NewLine}FROM users{Environment.NewLine}WHERE active = 1", result);
+    }
+
+    [Theory]
+    [InlineData("select [order] from users", "SELECT [order]\nFROM users")]
+    [InlineData("select [order]]name] from users", "SELECT [order]]name]\nFROM users")]
+    [InlineData("select created_from_date from users", "SELECT created_from_date\nFROM users")]
+    [InlineData("select @select_value from users", "SELECT @select_value\nFROM users")]
+    public void Run_formats_sql_without_splitting_identifiers(string input, string expected)
+    {
+        var result = UtilityOperations.Run("SQL formatter", "Format", input);
+
+        Assert.Equal(expected.Replace("\n", Environment.NewLine, StringComparison.Ordinal), result);
+    }
+
+    [Fact]
+    public void Run_preserves_whitespace_in_multiline_sql_literals()
+    {
+        var result = UtilityOperations.Run("SQL formatter", "Format", "select 'first  \nsecond' from users");
+
+        Assert.Equal($"SELECT 'first  \nsecond'{Environment.NewLine}FROM users", result);
     }
 
     [Fact]
