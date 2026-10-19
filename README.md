@@ -17,7 +17,7 @@ All processing happens locally in the app.
 
 ## Build and run
 
-On Windows, install Visual Studio 2022 with the **.NET desktop development** workload and the Windows 10/11 SDK. Open `src/Utility.WinUI.csproj`, restore NuGet packages, and run the project. The project targets .NET 8 and uses the Windows App SDK 1.6.
+On Windows, install Visual Studio 2022 with the **.NET desktop development** workload, the .NET 10 SDK, and the Windows 10/11 SDK. Open `src/Utility.WinUI.csproj`, restore NuGet packages, and run the project. The project targets .NET 10 and uses the Windows App SDK 1.6.
 
 ## Tests
 
