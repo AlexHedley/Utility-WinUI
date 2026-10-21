@@ -66,7 +66,7 @@ All transformations run locally in the application. Utility does not send input 
 ## Requirements
 
 - Windows 10 version 1809 (build 17763) or newer.
-- For development, Visual Studio 2026 (18.0 or newer) with the **.NET desktop development** and **Desktop development with C++** workloads, the .NET 10 SDK, and a Windows 10/11 SDK (10.0.19041.0 or newer).
+- For development, a Visual Studio version that supports .NET 10 (Visual Studio 2026, 18.0 or newer) with the **.NET desktop development** and **Desktop development with C++** workloads, the .NET 10 SDK, and a Windows 10/11 SDK (10.0.19041.0 or newer). The solution's `Visual Studio Version 17` header is solution metadata; it does not indicate that Visual Studio 17 supports this .NET 10 project.
 - In Visual Studio Installer, include the MSVC C++ x64/x86 build tools. The WinUI XAML compiler invokes MSVC discovery during build, even though this app is written in C#.
 - The app targets `net10.0-windows10.0.19041.0` and uses Windows App SDK 1.6. CI publishes a self-contained `win-x64` application.
 
