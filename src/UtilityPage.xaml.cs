@@ -12,6 +12,7 @@ public sealed partial class UtilityPage : Page
     public UtilityPage()
     {
         InitializeComponent();
+        HomeHero.ToolInvoked += tool => Frame.Navigate(typeof(UtilityPage), tool);
     }
 
     protected override void OnNavigatedTo(NavigationEventArgs e)

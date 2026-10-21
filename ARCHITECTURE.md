@@ -10,7 +10,7 @@ flowchart LR
     subgraph Desktop["Utility.WinUI · WinUI 3"]
         App["App<br/>application resources and launch"]
         Window["MainWindow<br/>NavigationView and Frame"]
-        Page["UtilityPage<br/>input, actions, output"]
+        Page["UtilityPage<br/>welcome hero and tool input/actions/output"]
     end
     subgraph Core["Utility.Core · .NET 10"]
         Operations["UtilityOperations.Run"]
@@ -23,6 +23,7 @@ flowchart LR
     User --> Window
     App --> Window
     Window --> Page
+    Page -->|"select a Welcome tool"| Page
     Page -->|"tool, action, input"| Operations
     Operations --> Html
     Operations --> Color
@@ -37,7 +38,7 @@ flowchart LR
 
 - `App.xaml` merges `XamlControlsResources`; `App.xaml.cs` creates and activates the main window on launch.
 - `MainWindow.xaml` defines the navigation menu and content frame. `MainWindow.xaml.cs` routes the selected tool to the utility page.
-- `UtilityPage.xaml` provides the reusable input/action/output layout. Its code-behind chooses tool descriptions and actions, calls the core library, and displays expected validation errors.
+- `UtilityPage.xaml` provides the interactive Welcome hero and reusable input/action/output layout. `WelcomeHero` animates the available tools with Windows Composition, supports direct tool navigation and replay, and honors the Windows animation-effects setting. The page code-behind chooses tool descriptions and actions, calls the core library, and displays expected validation errors.
 - `Utility.WinUI.csproj` targets `net10.0-windows10.0.19041.0`, uses Windows App SDK 1.6, and references the core project.
 
 ### Core library (`src/Utility.Core/`)
@@ -110,6 +111,7 @@ The build/test workflow runs on Windows and publishes a downloadable workflow ar
 | Path | Responsibility |
 | --- | --- |
 | `src/` | WinUI application and shared core project |
+| `src/WelcomeHero.*` | Composition-based Welcome scene and tool shortcuts |
 | `tests/Utility.Core.Tests/` | Cross-platform tests for core operations |
 | `docs/USER_GUIDE.md` | User, tool, developer, and release instructions |
 | `assets/` | Original logo, icon, and social preview artwork |
