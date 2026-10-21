@@ -19,9 +19,7 @@ See the [user guide](docs/USER_GUIDE.md) for tool behavior and examples, and the
 
 ## Build and run
 
-On Windows, install Visual Studio 2026 (18.0 or newer) with the **.NET desktop development** and **Desktop development with C++** workloads. Ensure the MSVC C++ x64/x86 build tools and a Windows 10/11 SDK (10.0.19041.0 or newer) are selected in Visual Studio Installer, and install the .NET 10 SDK. The C++ tools are required by the WinUI XAML compiler even though the app code is C#. Open `Utility-WinUI.sln`, restore NuGet packages, and run the app.
-
-If a build fails in `GetLatestMSVCVersion` with a missing `VC\Tools\MSVC` directory, modify the Visual Studio installation and add **Desktop development with C++** and its MSVC x64/x86 build tools. Then restart Visual Studio and rebuild.
+For Visual Studio workloads, SDK requirements, and troubleshooting missing MSVC tools, see the [development requirements](docs/USER_GUIDE.md#requirements). Open `Utility-WinUI.sln`, restore NuGet packages, and run the app.
 
 Run the cross-platform core tests from the repository root:
 
