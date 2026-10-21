@@ -23,4 +23,11 @@
   <ItemGroup>
     <Compile Remove="Utility.Core/**/*.cs" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="../assets/utility-icon.ico"
+             Link="assets/utility-icon.ico"
+             CopyToOutputDirectory="PreserveNewest"
+             CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
 </Project>

@@ -1,3 +1,5 @@
+using System.IO;
+
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 
@@ -9,6 +11,7 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
         Title = "Utility";
+        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "assets", "utility-icon.ico"));
         Navigation.SelectedItem = Navigation.MenuItems[0];
         ContentFrame.Navigate(typeof(UtilityPage), "Home");
     }

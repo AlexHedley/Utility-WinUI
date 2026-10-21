@@ -5,22 +5,61 @@
     Title="Utility">
     <NavigationView
         x:Name="Navigation"
+        PaneDisplayMode="Auto"
+        CompactPaneLength="48"
+        OpenPaneLength="256"
         IsBackButtonVisible="Collapsed"
         IsSettingsVisible="False"
         PaneTitle="Utility"
         SelectionChanged="Navigation_SelectionChanged">
         <NavigationView.MenuItems>
-            <NavigationViewItem Content="Home" Tag="Home" />
+            <NavigationViewItem Content="Home" Tag="Home">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Home" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
             <NavigationViewItemSeparator />
             <NavigationViewItemHeader Content="Text &amp; data" />
-            <NavigationViewItem Content="HTML encoder" Tag="HTML encoder" />
-            <NavigationViewItem Content="URL encoder" Tag="URL encoder" />
-            <NavigationViewItem Content="HEX to RGB" Tag="HEX to RGB" />
-            <NavigationViewItem Content="SQL IN builder" Tag="SQL IN builder" />
-            <NavigationViewItem Content="GUID generator" Tag="GUID generator" />
-            <NavigationViewItem Content="JSON formatter" Tag="JSON formatter" />
-            <NavigationViewItem Content="XML formatter" Tag="XML formatter" />
-            <NavigationViewItem Content="SQL formatter" Tag="SQL formatter" />
+            <NavigationViewItem Content="HTML encoder" Tag="HTML encoder">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Document" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="URL encoder" Tag="URL encoder">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Link" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="HEX to RGB" Tag="HEX to RGB">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="FontColor" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="SQL IN builder" Tag="SQL IN builder">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Bullets" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="GUID generator" Tag="GUID generator">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Tag" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="JSON formatter" Tag="JSON formatter">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Document" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="XML formatter" Tag="XML formatter">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="Page" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
+            <NavigationViewItem Content="SQL formatter" Tag="SQL formatter">
+                <NavigationViewItem.Icon>
+                    <SymbolIcon Symbol="List" />
+                </NavigationViewItem.Icon>
+            </NavigationViewItem>
         </NavigationView.MenuItems>
         <Frame x:Name="ContentFrame" />
     </NavigationView>
