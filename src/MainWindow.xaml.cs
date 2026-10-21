@@ -12,7 +12,12 @@ public sealed partial class MainWindow : Window
     {
         InitializeComponent();
         Title = "Utility";
-        AppWindow.SetIcon(Path.Combine(AppContext.BaseDirectory, "assets", "utility-icon.ico"));
+        var iconPath = Path.Combine(AppContext.BaseDirectory, "assets", "utility-icon.ico");
+        if (File.Exists(iconPath))
+        {
+            AppWindow.SetIcon(iconPath);
+        }
+
         Navigation.SelectedItem = Navigation.MenuItems[0];
         ContentFrame.Navigate(typeof(UtilityPage), "Home");
     }
