@@ -22,7 +22,7 @@
             <NavigationViewItemHeader Content="Text &amp; data" />
             <NavigationViewItem Content="HTML encoder" Tag="HTML encoder">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="Document" />
+                    <SymbolIcon Symbol="Font" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
             <NavigationViewItem Content="URL encoder" Tag="URL encoder">
@@ -37,12 +37,12 @@
             </NavigationViewItem>
             <NavigationViewItem Content="SQL IN builder" Tag="SQL IN builder">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="Bullets" />
+                    <SymbolIcon Symbol="Add" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
             <NavigationViewItem Content="GUID generator" Tag="GUID generator">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="Tag" />
+                    <SymbolIcon Symbol="Target" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
             <NavigationViewItem Content="JSON formatter" Tag="JSON formatter">
