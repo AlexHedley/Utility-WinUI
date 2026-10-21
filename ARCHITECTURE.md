@@ -38,7 +38,7 @@ flowchart LR
 
 - `App.xaml` merges `XamlControlsResources`; `App.xaml.cs` creates and activates the main window on launch.
 - `MainWindow.xaml` defines the navigation menu and content frame. `MainWindow.xaml.cs` routes the selected tool to the utility page.
-- `UtilityPage.xaml` provides the interactive Welcome hero and reusable input/action/output layout. `WelcomeHero` animates the available tools with Windows Composition, supports direct tool navigation and replay, and honors the Windows animation-effects setting. The page code-behind chooses tool descriptions and actions, calls the core library, and displays expected validation errors.
+- `UtilityPage.xaml` provides the interactive Welcome hero and reusable input/action/output layout. `WelcomeHero` animates the available tools with Windows Composition, star trails, and an impact flash; it supports direct tool navigation and replay, and honors Windows animation-effects and High Contrast settings. The page code-behind chooses tool descriptions and actions, calls the core library, and displays expected validation errors.
 - `Utility.WinUI.csproj` targets `net10.0-windows10.0.19041.0`, uses Windows App SDK 1.6, and references the core project.
 
 ### Core library (`src/Utility.Core/`)

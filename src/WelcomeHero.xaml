@@ -24,8 +24,9 @@
             BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
             BorderThickness="1"
             CornerRadius="16">
-            <Grid ClipToBounds="True">
+            <Grid>
                 <Canvas x:Name="StarField" IsHitTestVisible="False" />
+                <Canvas x:Name="StreakField" IsHitTestVisible="False" />
                 <Grid x:Name="ToolGrid" Padding="16,12,16,30">
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*" />
@@ -38,6 +39,16 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                 </Grid>
+                <Border
+                    x:Name="ImpactFlash"
+                    Width="120"
+                    Height="120"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Background="White"
+                    CornerRadius="60"
+                    IsHitTestVisible="False"
+                    Opacity="0" />
             </Grid>
         </Border>
         <TextBlock

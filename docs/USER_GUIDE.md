@@ -2,7 +2,7 @@
 
 Utility is a small, local-first Windows desktop toolbox. Select a tool in the navigation pane, enter or paste text, choose an action, and read the result in the output field. Use **Clear** to reset the current input and output.
 
-The Home page opens with a short animated tool intro. Select a tool tile to open it, point at a tile to identify it, or select the Utility mark to replay the animation. Windows animation effects settings are respected.
+The Home page opens with a short animated tool intro. Select a tool tile to open it, point at a tile to identify it, or select the Utility mark to replay the animation. Windows animation effects settings are respected, and decorative motion is disabled in High Contrast.
 
 ## Tools
 

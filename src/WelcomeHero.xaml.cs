@@ -4,6 +4,7 @@ using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Hosting;
 using Microsoft.UI.Xaml.Input;
+using Microsoft.UI.Xaml.Media;
 using Microsoft.UI.Xaml.Shapes;
 using System.Numerics;
 using Windows.Foundation;
@@ -29,7 +30,9 @@ public sealed partial class WelcomeHero : UserControl
     private static bool _introPlayed;
     private readonly List<Button> _toolButtons = [];
     private readonly List<StarParticle> _stars = [];
+    private readonly List<StreakParticle> _streaks = [];
     private readonly UISettings _uiSettings = new();
+    private readonly AccessibilitySettings _accessibilitySettings = new();
     private Button? _logoButton;
     private Visual? _sceneVisual;
     private Vector3 _sceneBaseOffset;
@@ -39,6 +42,7 @@ public sealed partial class WelcomeHero : UserControl
     public WelcomeHero()
     {
         InitializeComponent();
+        HeroRoot.ActualThemeChanged += (_, _) => UpdateStarPalette();
         CreateToolButtons();
     }
 
@@ -160,8 +164,9 @@ public sealed partial class WelcomeHero : UserControl
         _sceneVisual = ElementCompositionPreview.GetElementVisual(ToolGrid);
         _sceneBaseOffset = _sceneVisual.Offset;
         CreateStars();
+        CreateStreaks();
 
-        if (!_uiSettings.AnimationsEnabled)
+        if (!AnimationsAllowed)
         {
             ShowFinalState();
         }
@@ -178,16 +183,44 @@ public sealed partial class WelcomeHero : UserControl
 
     private void HeroRoot_SizeChanged(object sender, SizeChangedEventArgs e)
     {
-        if (_stars.Count == 0 || HeroRoot.ActualWidth <= 0 || HeroRoot.ActualHeight <= 0)
+        if (HeroRoot.ActualWidth <= 0 || HeroRoot.ActualHeight <= 0)
         {
             return;
         }
 
-        foreach (var star in _stars)
+        if (_stars.Count > 0)
         {
-            Canvas.SetLeft(star.Element, star.X * HeroRoot.ActualWidth);
-            Canvas.SetTop(star.Element, star.Y * HeroRoot.ActualHeight);
+            foreach (var star in _stars)
+            {
+                Canvas.SetLeft(star.Element, star.X * HeroRoot.ActualWidth);
+                Canvas.SetTop(star.Element, star.Y * HeroRoot.ActualHeight);
+            }
         }
+
+        foreach (var streak in _streaks)
+        {
+            PositionStreak(streak);
+        }
+    }
+
+    private void PositionStreak(StreakParticle streak)
+    {
+        var centerX = HeroRoot.ActualWidth / 2;
+        var centerY = HeroRoot.ActualHeight / 2;
+        var radians = streak.Angle * Math.PI / 180;
+        var directionX = Math.Cos(radians);
+        var directionY = Math.Sin(radians);
+        var distanceX = Math.Abs(directionX) < 0.001 ? double.PositiveInfinity : centerX / Math.Abs(directionX);
+        var distanceY = Math.Abs(directionY) < 0.001 ? double.PositiveInfinity : centerY / Math.Abs(directionY);
+        streak.Element.Width = Math.Min(distanceX, distanceY) * streak.LengthFactor;
+        streak.Element.RenderTransform = new RotateTransform
+        {
+            Angle = streak.Angle,
+            CenterX = 0,
+            CenterY = 1
+        };
+        Canvas.SetLeft(streak.Element, centerX);
+        Canvas.SetTop(streak.Element, centerY - 1);
     }
 
     private void CreateStars()
@@ -204,6 +237,7 @@ public sealed partial class WelcomeHero : UserControl
             {
                 Width = size,
                 Height = size,
+                Opacity = 0,
                 Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(
                     index % 7 == 0
                         ? Color.FromArgb(190, 56, 189, 248)
@@ -219,15 +253,56 @@ public sealed partial class WelcomeHero : UserControl
         }
     }
 
+    private void UpdateStarPalette()
+    {
+        var neutral = HeroRoot.ActualTheme == ElementTheme.Light
+            ? Color.FromArgb(150, 71, 85, 105)
+            : Color.FromArgb(190, 226, 232, 240);
+        for (var index = 0; index < _stars.Count; index++)
+        {
+            _stars[index].Element.Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(
+                index % 7 == 0 ? Color.FromArgb(190, 56, 189, 248) : neutral);
+        }
+    }
+
+    private void CreateStreaks()
+    {
+        if (_accessibilitySettings.HighContrast)
+        {
+            return;
+        }
+
+        var colors = new[]
+        {
+            Color.FromArgb(255, 56, 189, 248),
+            Color.FromArgb(255, 167, 139, 250)
+        };
+        for (var index = 0; index < 18; index++)
+        {
+            var streak = new Border
+            {
+                Height = 2,
+                Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(colors[index % colors.Length]),
+                Opacity = 0,
+                IsHitTestVisible = false
+            };
+            var particle = new StreakParticle(streak, index * 20, 0.68 + (index % 4) * 0.08);
+            PositionStreak(particle);
+            StreakField.Children.Add(streak);
+            _streaks.Add(particle);
+        }
+    }
+
     private void PlayIntro()
     {
-        if (_compositor is null || !_uiSettings.AnimationsEnabled)
+        if (_compositor is null || !AnimationsAllowed)
         {
             ShowFinalState();
             return;
         }
 
         StarField.Visibility = Visibility.Visible;
+        StreakField.Visibility = Visibility.Visible;
         foreach (var button in _toolButtons)
         {
             var visual = ElementCompositionPreview.GetElementVisual(button);
@@ -241,6 +316,13 @@ public sealed partial class WelcomeHero : UserControl
             var visual = ElementCompositionPreview.GetElementVisual(star.Element);
             visual.StopAnimation(nameof(Visual.Offset));
             visual.StopAnimation(nameof(Visual.Opacity));
+        }
+
+        foreach (var streak in _streaks)
+        {
+            var visual = ElementCompositionPreview.GetElementVisual(streak.Element);
+            visual.StopAnimation(nameof(Visual.Opacity));
+            visual.StopAnimation(nameof(Visual.Scale));
         }
 
         var logoVisual = ElementCompositionPreview.GetElementVisual(_logoButton!);
@@ -275,23 +357,30 @@ public sealed partial class WelcomeHero : UserControl
             visual.StartAnimation(nameof(Visual.Opacity), twinkle);
         }
 
+        for (var index = 0; index < _streaks.Count; index++)
+        {
+            AnimateStreak(_streaks[index], index * 22);
+        }
+
         for (var index = 0; index < _toolButtons.Count; index++)
         {
             AnimateTile(_toolButtons[index], index * 65, 820);
         }
 
         AnimateLogo(650);
+        AnimateImpactFlash(1020);
     }
 
     private void PlaySettle()
     {
-        if (_compositor is null || !_uiSettings.AnimationsEnabled)
+        if (_compositor is null || !AnimationsAllowed)
         {
             ShowFinalState();
             return;
         }
 
         StarField.Visibility = Visibility.Collapsed;
+        StreakField.Visibility = Visibility.Collapsed;
         for (var index = 0; index < _toolButtons.Count; index++)
         {
             var button = _toolButtons[index];
@@ -344,6 +433,27 @@ public sealed partial class WelcomeHero : UserControl
         AnimateOpacity(visual, flight.Duration, flight.DelayTime);
     }
 
+    private void AnimateStreak(StreakParticle streak, int delayMilliseconds)
+    {
+        var visual = ElementCompositionPreview.GetElementVisual(streak.Element);
+        visual.CenterPoint = new Vector3(0, 1, 0);
+        visual.Scale = new Vector3(0.03f, 1, 1);
+        visual.Opacity = 0;
+
+        var scale = _compositor!.CreateVector3KeyFrameAnimation();
+        scale.InsertKeyFrame(1f, Vector3.One);
+        scale.Duration = TimeSpan.FromMilliseconds(760);
+        scale.DelayTime = TimeSpan.FromMilliseconds(delayMilliseconds);
+        visual.StartAnimation(nameof(Visual.Scale), scale);
+
+        var opacity = _compositor.CreateScalarKeyFrameAnimation();
+        opacity.InsertKeyFrame(0.36f, 0.38f);
+        opacity.InsertKeyFrame(1f, 0f);
+        opacity.Duration = scale.Duration;
+        opacity.DelayTime = scale.DelayTime;
+        visual.StartAnimation(nameof(Visual.Opacity), opacity);
+    }
+
     private void AnimateLogo(int delayMilliseconds)
     {
         var visual = ElementCompositionPreview.GetElementVisual(_logoButton!);
@@ -369,9 +479,22 @@ public sealed partial class WelcomeHero : UserControl
         AnimateOpacity(visual, slam.Duration, slam.DelayTime);
     }
 
+    private void AnimateImpactFlash(int delayMilliseconds)
+    {
+        var visual = ElementCompositionPreview.GetElementVisual(ImpactFlash);
+        visual.StopAnimation(nameof(Visual.Opacity));
+        visual.Opacity = 0;
+        var flash = _compositor!.CreateScalarKeyFrameAnimation();
+        flash.InsertKeyFrame(0.35f, 0.82f);
+        flash.InsertKeyFrame(1f, 0f);
+        flash.Duration = TimeSpan.FromMilliseconds(360);
+        flash.DelayTime = TimeSpan.FromMilliseconds(delayMilliseconds);
+        visual.StartAnimation(nameof(Visual.Opacity), flash);
+    }
+
     private void AnimateScale(Button button, float target, int durationMilliseconds, int delayMilliseconds = 0)
     {
-        if (_compositor is null || !_uiSettings.AnimationsEnabled)
+        if (_compositor is null || !AnimationsAllowed)
         {
             return;
         }
@@ -396,7 +519,10 @@ public sealed partial class WelcomeHero : UserControl
 
     private void ShowFinalState()
     {
+        _introPlayed = true;
         StarField.Visibility = Visibility.Collapsed;
+        StreakField.Visibility = Visibility.Collapsed;
+        ImpactFlash.Opacity = 0;
         foreach (var button in _toolButtons)
         {
             button.Opacity = 1;
@@ -412,7 +538,7 @@ public sealed partial class WelcomeHero : UserControl
 
     private void HeroRoot_PointerMoved(object sender, PointerRoutedEventArgs e)
     {
-        if (_sceneVisual is null || !_uiSettings.AnimationsEnabled)
+        if (_sceneVisual is null || !AnimationsAllowed)
         {
             return;
         }
@@ -425,7 +551,7 @@ public sealed partial class WelcomeHero : UserControl
 
     private void HeroRoot_PointerExited(object sender, PointerRoutedEventArgs e)
     {
-        if (_sceneVisual is null || !_uiSettings.AnimationsEnabled)
+        if (_sceneVisual is null || !AnimationsAllowed)
         {
             return;
         }
@@ -436,7 +562,11 @@ public sealed partial class WelcomeHero : UserControl
         _sceneVisual.StartAnimation(nameof(Visual.Offset), settle);
     }
 
+    private bool AnimationsAllowed => _uiSettings.AnimationsEnabled && !_accessibilitySettings.HighContrast;
+
     private sealed record ToolDefinition(string Name, Symbol Symbol, int Row, int Column);
 
     private sealed record StarParticle(Ellipse Element, double X, double Y);
+
+    private sealed record StreakParticle(Border Element, double Angle, double LengthFactor);
 }
