@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256" role="img" aria-labelledby="title">
+  <title id="title">Utility app icon</title>
+  <rect x="8" y="8" width="240" height="240" rx="58" fill="#0F172A"/>
+  <path d="M76 70v69c0 35 19 54 52 54s52-19 52-54V70" fill="none" stroke="#38BDF8" stroke-linecap="round" stroke-width="25"/>
+  <circle cx="76" cy="70" r="13" fill="#A78BFA"/>
+  <circle cx="180" cy="70" r="13" fill="#A78BFA"/>
+</svg>
