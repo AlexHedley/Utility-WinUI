@@ -5,7 +5,7 @@
     Title="Utility">
     <NavigationView
         x:Name="Navigation"
-        PaneDisplayMode="Auto"
+        PaneDisplayMode="LeftCompact"
         CompactPaneLength="48"
         OpenPaneLength="256"
         IsBackButtonVisible="Collapsed"
@@ -47,7 +47,7 @@
             </NavigationViewItem>
             <NavigationViewItem Content="JSON formatter" Tag="JSON formatter">
                 <NavigationViewItem.Icon>
-                    <SymbolIcon Symbol="Document" />
+                    <SymbolIcon Symbol="OpenFile" />
                 </NavigationViewItem.Icon>
             </NavigationViewItem>
             <NavigationViewItem Content="XML formatter" Tag="XML formatter">
