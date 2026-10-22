@@ -5,7 +5,7 @@
     <TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
     <UseWinUI>true</UseWinUI>
     <ApplicationIcon>../assets/utility-icon.ico</ApplicationIcon>
-    <WindowsPackageType>MSIX</WindowsPackageType>
+    <WindowsPackageType>None</WindowsPackageType>
     <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
