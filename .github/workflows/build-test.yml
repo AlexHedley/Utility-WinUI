@@ -45,11 +45,11 @@ jobs:
           --configuration Release
           --runtime win-x64
           --self-contained true
-          --output artifacts/msix
           -p:WindowsAppSDKSelfContained=true
           -p:GenerateAppxPackageOnBuild=true
           -p:AppxPackageSigningEnabled=false
           -p:AppxBundle=Never
+          -p:AppxPackageDir=artifacts/msix/
 
       - name: Collect MSIX package
         run: |

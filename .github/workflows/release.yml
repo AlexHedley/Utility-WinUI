@@ -70,10 +70,10 @@ jobs:
           $packageUri = "https://github.com/$env:REPOSITORY/releases/latest/download/Utility-WinUI-x64.msix"
           $appInstaller = @"
           <?xml version="1.0" encoding="utf-8"?>
-          <AppInstaller Uri="$installerUri" Version="$version" xmlns="http://schemas.microsoft.com/appx/appinstaller/2018">
+          <AppInstaller Uri="$installerUri" Version="$version" xmlns="http://schemas.microsoft.com/appx/appinstaller/2021">
             <MainPackage Name="$($manifest.Package.Identity.Name)" Publisher="$($manifest.Package.Identity.Publisher)" Version="$version" ProcessorArchitecture="x64" Uri="$packageUri" />
             <UpdateSettings>
-              <OnLaunch CheckForUpdate="true" UpdateBlocksActivation="false" />
+              <OnLaunch HoursBetweenUpdateChecks="0" ShowPrompt="false" UpdateBlocksActivation="false" />
               <AutomaticBackgroundTask />
             </UpdateSettings>
           </AppInstaller>
@@ -97,11 +97,11 @@ jobs:
           --configuration Release
           --runtime win-x64
           --self-contained true
-          --output artifacts/msix
           -p:WindowsAppSDKSelfContained=true
           -p:GenerateAppxPackageOnBuild=true
           -p:AppxPackageSigningEnabled=false
           -p:AppxBundle=Never
+          -p:AppxPackageDir=artifacts/msix/
 
       - name: Sign MSIX
         shell: pwsh
