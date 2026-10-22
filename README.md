@@ -29,7 +29,7 @@ dotnet test tests/Utility.Core.Tests/Utility.Core.Tests.csproj --configuration R
 
 ## CI and releases
 
-The **Build and test** GitHub Actions workflow runs core tests, builds the Windows app, and uploads a self-contained `win-x64` ZIP artifact for pushes to `main` or `master`, pull requests, and manual dispatch. The **Release** workflow runs on `v*` tags or can be started manually with an existing tag; it attaches the self-contained ZIP to a GitHub Release. See [GitHub Actions](.github/workflows/) and [release instructions](docs/USER_GUIDE.md#ci-and-releases).
+The **Build and test** GitHub Actions workflow runs core tests, builds the Windows app, and uploads a self-contained `win-x64` ZIP and unsigned MSIX artifact for pushes to `main` or `master`, pull requests, and manual dispatch. The **Release** workflow runs on `v*` tags or can be started manually with an existing tag; it attaches the ZIP, a signed MSIX, and a GitHub App Installer feed to a GitHub Release. See [GitHub Actions](.github/workflows/) and [release instructions](docs/USER_GUIDE.md#ci-and-releases).
 
 ## Project documentation
 
