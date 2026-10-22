@@ -70,7 +70,7 @@ All transformations run locally in the application. Utility does not send input 
 - Windows 10 version 1809 (build 17763) or newer.
 - For development, a Visual Studio version that supports .NET 10 (Visual Studio 2026, 18.0 or newer) with the **.NET desktop development** and **Desktop development with C++** workloads, the .NET 10 SDK, and a Windows 10/11 SDK (10.0.19041.0 or newer). The solution's `Visual Studio Version 17` header is solution metadata; it does not indicate that Visual Studio 17 supports this .NET 10 project.
 - In Visual Studio Installer, include the MSVC C++ x64/x86 build tools. The WinUI XAML compiler invokes MSVC discovery during build, even though this app is written in C#.
-- The app targets `net10.0-windows10.0.19041.0` and uses Windows App SDK 1.6. CI publishes a self-contained `win-x64` application.
+- The app targets `net10.0-windows10.0.19041.0` and uses Windows App SDK 1.6. CI publishes a self-contained `win-x64` application and an unsigned MSIX build artifact.
 
 If the build reports `MSB4018` in `GetLatestMSVCVersion` and says the `VC\Tools\MSVC` directory is missing, the C++ toolchain is not installed for that Visual Studio instance. Open Visual Studio Installer, select **Modify**, install **Desktop development with C++** and the MSVC x64/x86 build tools, then restart Visual Studio and rebuild. Do not create the missing directory manually.
 
@@ -103,9 +103,11 @@ The WinUI application requires Windows to run and build in its supported environ
 
 ## CI and releases
 
-The **Build and test** workflow runs for pull requests, pushes to `main` or `master`, and manual dispatch. On a Windows runner it tests the core, builds the app, publishes a self-contained `win-x64` directory, and uploads `Utility-WinUI-win-x64.zip` as an artifact.
+The **Build and test** workflow runs for pull requests, pushes to `main` or `master`, and manual dispatch. On a Windows runner it tests the core, builds the app, publishes a self-contained `win-x64` directory, and uploads `Utility-WinUI-win-x64.zip` and an unsigned `Utility-WinUI-x64.msix` as workflow artifacts.
 
-To publish a release, push a version tag such as `v1.0.0`. The **Release** workflow can also be started manually by providing an existing tag. It checks out that tag, reruns the tests, publishes the self-contained app, and attaches `Utility-WinUI-win-x64.zip` to a GitHub Release. See `.github/workflows/build-test.yml` and `.github/workflows/release.yml` for the authoritative workflow configuration.
+To publish a release, push a version tag such as `v1.0.0`. The **Release** workflow can also be started manually by providing an existing tag. Before the first release, configure the repository variable `MSIX_PUBLISHER` with the signing certificate's exact subject (for example, `CN=Your Publisher`) and secrets `MSIX_SIGNING_CERTIFICATE_BASE64` and `MSIX_SIGNING_CERTIFICATE_PASSWORD` with a trusted code-signing certificate in PFX format and its password. Keep using the same certificate identity for updates; Windows only accepts updates signed by the same publisher. The workflow signs the MSIX and publishes it as `Utility-WinUI-x64.msix`, alongside `Utility-WinUI-x64.appinstaller` and the existing ZIP.
+
+Users can open the `.appinstaller` file from the latest GitHub Release to install the app. Its feed uses stable `releases/latest/download` asset URLs; App Installer checks for updates on launch and in the background. The package publisher must be trusted by Windows for installation and seamless updates, so use a certificate trusted on users' devices rather than a self-signed development certificate. See `.github/workflows/build-test.yml` and `.github/workflows/release.yml` for the authoritative workflow configuration.
 
 ## Brand assets
 

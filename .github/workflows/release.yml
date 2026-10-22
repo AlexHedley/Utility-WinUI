@@ -28,8 +28,58 @@ jobs:
         with:
           dotnet-version: 10.0.x
 
+      - name: Validate release identity and signing configuration
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          MSIX_PUBLISHER: ${{ vars.MSIX_PUBLISHER }}
+          MSIX_SIGNING_CERTIFICATE_BASE64: ${{ secrets.MSIX_SIGNING_CERTIFICATE_BASE64 }}
+          MSIX_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.MSIX_SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          if ($env:RELEASE_TAG -notmatch '^v?(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$') {
+            throw "Release tag must be vMAJOR.MINOR.PATCH (got '$env:RELEASE_TAG')."
+          }
+          $version = [version]"$($env:RELEASE_TAG.TrimStart('v')).0"
+          if ($version.Major -gt 65535 -or $version.Minor -gt 65535 -or $version.Build -gt 65535) {
+            throw 'MSIX version components must not exceed 65535.'
+          }
+          foreach ($name in 'MSIX_PUBLISHER', 'MSIX_SIGNING_CERTIFICATE_BASE64', 'MSIX_SIGNING_CERTIFICATE_PASSWORD') {
+            if ([string]::IsNullOrWhiteSpace([Environment]::GetEnvironmentVariable($name))) {
+              throw "Configure the $name repository variable or secret before releasing."
+            }
+          }
+
       - name: Run tests
         run: dotnet test tests/Utility.Core.Tests/Utility.Core.Tests.csproj --configuration Release
+
+      - name: Stamp MSIX identity and create App Installer feed
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+          MSIX_PUBLISHER: ${{ vars.MSIX_PUBLISHER }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          $version = "$($env:RELEASE_TAG.TrimStart('v')).0"
+          $manifestPath = 'src/Package.appxmanifest'
+          [xml]$manifest = Get-Content $manifestPath -Raw
+          $manifest.Package.Identity.Version = $version
+          $manifest.Package.Identity.Publisher = $env:MSIX_PUBLISHER
+          $manifest.Save((Resolve-Path $manifestPath))
+
+          $installerUri = "https://github.com/$env:REPOSITORY/releases/latest/download/Utility-WinUI-x64.appinstaller"
+          $packageUri = "https://github.com/$env:REPOSITORY/releases/latest/download/Utility-WinUI-x64.msix"
+          $appInstaller = @"
+          <?xml version="1.0" encoding="utf-8"?>
+          <AppInstaller Uri="$installerUri" Version="$version" xmlns="http://schemas.microsoft.com/appx/appinstaller/2018">
+            <MainPackage Name="$($manifest.Package.Identity.Name)" Publisher="$($manifest.Package.Identity.Publisher)" Version="$version" ProcessorArchitecture="x64" Uri="$packageUri" />
+            <UpdateSettings>
+              <OnLaunch CheckForUpdate="true" UpdateBlocksActivation="false" />
+              <AutomaticBackgroundTask />
+            </UpdateSettings>
+          </AppInstaller>
+          "@
+          New-Item -ItemType Directory -Force artifacts/release | Out-Null
+          Set-Content -Path artifacts/release/Utility-WinUI-x64.appinstaller -Value $appInstaller -Encoding utf8
 
       - name: Publish self-contained app
         run: >-
@@ -41,7 +91,46 @@ jobs:
           -p:WindowsAppSDKSelfContained=true
           -p:WindowsPackageType=None
 
-      - name: Package app
+      - name: Package MSIX
+        run: >-
+          dotnet publish src/Utility.WinUI.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output artifacts/msix
+          -p:WindowsAppSDKSelfContained=true
+          -p:GenerateAppxPackageOnBuild=true
+          -p:AppxPackageSigningEnabled=false
+          -p:AppxBundle=Never
+
+      - name: Sign MSIX
+        shell: pwsh
+        env:
+          MSIX_PUBLISHER: ${{ vars.MSIX_PUBLISHER }}
+          MSIX_SIGNING_CERTIFICATE_BASE64: ${{ secrets.MSIX_SIGNING_CERTIFICATE_BASE64 }}
+          MSIX_SIGNING_CERTIFICATE_PASSWORD: ${{ secrets.MSIX_SIGNING_CERTIFICATE_PASSWORD }}
+        run: |
+          $certificatePath = Join-Path $env:RUNNER_TEMP 'msix-signing.pfx'
+          [IO.File]::WriteAllBytes($certificatePath, [Convert]::FromBase64String($env:MSIX_SIGNING_CERTIFICATE_BASE64))
+          $certificate = [Security.Cryptography.X509Certificates.X509Certificate2]::new(
+            $certificatePath,
+            $env:MSIX_SIGNING_CERTIFICATE_PASSWORD,
+            [Security.Cryptography.X509Certificates.X509KeyStorageFlags]::Exportable)
+          if ($certificate.Subject -ne $env:MSIX_PUBLISHER) {
+            throw "Signing certificate subject '$($certificate.Subject)' does not match MSIX_PUBLISHER '$env:MSIX_PUBLISHER'."
+          }
+
+          $package = Get-ChildItem artifacts/msix -Recurse -Filter '*.msix' | Select-Object -First 1
+          if (-not $package) { throw 'No MSIX package was produced.' }
+          $releasePackage = 'artifacts/release/Utility-WinUI-x64.msix'
+          Copy-Item $package.FullName $releasePackage
+          $signTool = Get-ChildItem "${env:ProgramFiles(x86)}\Windows Kits\10\bin\*\x64\signtool.exe" |
+            Sort-Object FullName -Descending | Select-Object -First 1
+          if (-not $signTool) { throw 'Windows SDK signtool.exe was not found.' }
+          & $signTool.FullName sign /fd SHA256 /f $certificatePath /p $env:MSIX_SIGNING_CERTIFICATE_PASSWORD /tr http://timestamp.digicert.com /td SHA256 $releasePackage
+          if ($LASTEXITCODE -ne 0) { throw 'MSIX signing failed.' }
+
+      - name: Package app ZIP
         run: Compress-Archive -Path artifacts/Utility-WinUI-win-x64/* -DestinationPath artifacts/Utility-WinUI-win-x64.zip
         shell: pwsh
 
@@ -51,5 +140,13 @@ jobs:
           tag_name: ${{ inputs.tag || github.ref_name }}
           name: Utility-WinUI ${{ inputs.tag || github.ref_name }}
           generate_release_notes: true
-          files: artifacts/Utility-WinUI-win-x64.zip
+          files: |
+            artifacts/Utility-WinUI-win-x64.zip
+            artifacts/release/Utility-WinUI-x64.msix
+            artifacts/release/Utility-WinUI-x64.appinstaller
           fail_on_unmatched_files: true
+
+      - name: Remove signing certificate
+        if: always()
+        shell: pwsh
+        run: Remove-Item (Join-Path $env:RUNNER_TEMP 'msix-signing.pfx') -Force -ErrorAction SilentlyContinue

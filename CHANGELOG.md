@@ -10,4 +10,5 @@ Notable changes to Utility-WinUI are documented here.
 - Local HTML and URL component encoding/decoding, HEX-to-RGB conversion, SQL `IN` clause building, GUID generation, JSON/XML formatting and minification, and SQL formatting.
 - Cross-platform core library and automated utility-operation tests.
 - Windows build/test and tagged-release GitHub Actions workflows.
+- MSIX packaging and GitHub App Installer feeds for signed releases.
 - User and architecture documentation, Mermaid diagrams, and original Utility branding assets.

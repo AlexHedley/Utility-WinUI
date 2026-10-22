@@ -27,7 +27,7 @@ jobs:
         run: dotnet test tests/Utility.Core.Tests/Utility.Core.Tests.csproj --configuration Release
 
       - name: Build app
-        run: dotnet build src/Utility.WinUI.csproj --configuration Release
+        run: dotnet build src/Utility.WinUI.csproj --configuration Release -p:WindowsPackageType=None
 
       - name: Publish self-contained app
         run: >-
@@ -39,7 +39,26 @@ jobs:
           -p:WindowsAppSDKSelfContained=true
           -p:WindowsPackageType=None
 
-      - name: Package app
+      - name: Package MSIX
+        run: >-
+          dotnet publish src/Utility.WinUI.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output artifacts/msix
+          -p:WindowsAppSDKSelfContained=true
+          -p:GenerateAppxPackageOnBuild=true
+          -p:AppxPackageSigningEnabled=false
+          -p:AppxBundle=Never
+
+      - name: Collect MSIX package
+        run: |
+          $package = Get-ChildItem artifacts/msix -Recurse -Filter '*.msix' | Select-Object -First 1
+          if (-not $package) { throw 'No MSIX package was produced.' }
+          Copy-Item $package.FullName artifacts/Utility-WinUI-x64.msix
+        shell: pwsh
+
+      - name: Package app ZIP
         run: Compress-Archive -Path artifacts/Utility-WinUI-win-x64/* -DestinationPath artifacts/Utility-WinUI-win-x64.zip
         shell: pwsh
 
@@ -47,5 +66,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: Utility-WinUI-win-x64
-          path: artifacts/Utility-WinUI-win-x64.zip
+          path: |
+            artifacts/Utility-WinUI-win-x64.zip
+            artifacts/Utility-WinUI-x64.msix
           if-no-files-found: error
