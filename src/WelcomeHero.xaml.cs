@@ -30,6 +30,7 @@ public sealed partial class WelcomeHero : UserControl
 
     private static bool _introPlayed;
     private readonly List<Button> _toolButtons = [];
+    private readonly Dictionary<Button, Vector3> _toolBaseOffsets = [];
     private readonly List<StarParticle> _stars = [];
     private readonly List<StreakParticle> _streaks = [];
     private readonly UISettings _uiSettings = new();
@@ -37,6 +38,7 @@ public sealed partial class WelcomeHero : UserControl
     private Button? _logoButton;
     private Visual? _sceneVisual;
     private Vector3 _sceneBaseOffset;
+    private Vector3 _logoBaseOffset;
     private Compositor? _compositor;
     private bool _initialized;
 
@@ -163,6 +165,12 @@ public sealed partial class WelcomeHero : UserControl
         ElementCompositionPreview.GetElementVisual(ImpactFlash).Opacity = 0;
         _sceneVisual = ElementCompositionPreview.GetElementVisual(ToolGrid);
         _sceneBaseOffset = _sceneVisual.Offset;
+        foreach (var button in _toolButtons)
+        {
+            _toolBaseOffsets[button] = ElementCompositionPreview.GetElementVisual(button).Offset;
+        }
+
+        _logoBaseOffset = ElementCompositionPreview.GetElementVisual(_logoButton!).Offset;
         CreateStars();
         CreateStreaks();
 
@@ -307,6 +315,9 @@ public sealed partial class WelcomeHero : UserControl
             visual.StopAnimation(nameof(Visual.Offset));
             visual.StopAnimation(nameof(Visual.Opacity));
             visual.StopAnimation(nameof(Visual.Scale));
+            visual.Offset = _toolBaseOffsets[button];
+            visual.Opacity = 1;
+            visual.Scale = Vector3.One;
         }
 
         foreach (var star in _stars)
@@ -327,6 +338,9 @@ public sealed partial class WelcomeHero : UserControl
         logoVisual.StopAnimation(nameof(Visual.Offset));
         logoVisual.StopAnimation(nameof(Visual.Opacity));
         logoVisual.StopAnimation(nameof(Visual.Scale));
+        logoVisual.Offset = _logoBaseOffset;
+        logoVisual.Opacity = 1;
+        logoVisual.Scale = Vector3.One;
         var center = new Point(HeroRoot.ActualWidth / 2, HeroRoot.ActualHeight / 2);
         foreach (var star in _stars)
         {
@@ -383,8 +397,12 @@ public sealed partial class WelcomeHero : UserControl
         {
             var button = _toolButtons[index];
             var visual = ElementCompositionPreview.GetElementVisual(button);
+            visual.StopAnimation(nameof(Visual.Offset));
+            visual.StopAnimation(nameof(Visual.Opacity));
+            visual.StopAnimation(nameof(Visual.Scale));
+            visual.Offset = _toolBaseOffsets[button];
             visual.Opacity = 0;
-            var targetOffset = visual.Offset;
+            var targetOffset = _toolBaseOffsets[button];
             visual.Offset = targetOffset + new Vector3(0, 12, 0);
             var move = _compositor.CreateVector3KeyFrameAnimation();
             move.InsertKeyFrame(1f, targetOffset);
@@ -395,6 +413,10 @@ public sealed partial class WelcomeHero : UserControl
         }
 
         var logoVisual = ElementCompositionPreview.GetElementVisual(_logoButton!);
+        logoVisual.StopAnimation(nameof(Visual.Offset));
+        logoVisual.StopAnimation(nameof(Visual.Opacity));
+        logoVisual.StopAnimation(nameof(Visual.Scale));
+        logoVisual.Offset = _logoBaseOffset;
         logoVisual.Opacity = 0;
         logoVisual.Scale = new Vector3(0.8f);
         AnimateOpacity(logoVisual, TimeSpan.FromMilliseconds(450), TimeSpan.FromMilliseconds(220));
@@ -408,7 +430,8 @@ public sealed partial class WelcomeHero : UserControl
             new Point(button.ActualWidth / 2, button.ActualHeight / 2));
         var center = new Point(HeroRoot.ActualWidth / 2, HeroRoot.ActualHeight / 2);
         visual.CenterPoint = new Vector3((float)(button.ActualWidth / 2), (float)(button.ActualHeight / 2), 0);
-        var targetOffset = visual.Offset;
+        var targetOffset = _toolBaseOffsets[button];
+        visual.Offset = targetOffset;
         visual.Offset = new Vector3(
             targetOffset.X + (float)(center.X - target.X),
             targetOffset.Y + (float)(center.Y - target.Y),
@@ -456,7 +479,8 @@ public sealed partial class WelcomeHero : UserControl
     {
         var visual = ElementCompositionPreview.GetElementVisual(_logoButton!);
         visual.CenterPoint = new Vector3((float)(_logoButton!.ActualWidth / 2), (float)(_logoButton.ActualHeight / 2), 0);
-        var targetOffset = visual.Offset;
+        var targetOffset = _logoBaseOffset;
+        visual.Offset = targetOffset;
         visual.Offset = targetOffset + new Vector3(0, -55, 0);
         visual.Scale = new Vector3(2.6f);
         visual.Opacity = 0;
@@ -520,17 +544,49 @@ public sealed partial class WelcomeHero : UserControl
         _introPlayed = true;
         StarField.Visibility = Visibility.Collapsed;
         StreakField.Visibility = Visibility.Collapsed;
-        ImpactFlash.Opacity = 0;
+        var flashVisual = ElementCompositionPreview.GetElementVisual(ImpactFlash);
+        flashVisual.StopAnimation(nameof(Visual.Opacity));
+        flashVisual.Opacity = 0;
+        if (_sceneVisual is not null)
+        {
+            _sceneVisual.StopAnimation(nameof(Visual.Offset));
+            _sceneVisual.Offset = _sceneBaseOffset;
+        }
+
+        foreach (var star in _stars)
+        {
+            var visual = ElementCompositionPreview.GetElementVisual(star.Element);
+            visual.StopAnimation(nameof(Visual.Offset));
+            visual.StopAnimation(nameof(Visual.Opacity));
+        }
+
+        foreach (var streak in _streaks)
+        {
+            var visual = ElementCompositionPreview.GetElementVisual(streak.Element);
+            visual.StopAnimation(nameof(Visual.Opacity));
+            visual.StopAnimation(nameof(Visual.Scale));
+        }
+
         foreach (var button in _toolButtons)
         {
-            button.Opacity = 1;
-            ElementCompositionPreview.GetElementVisual(button).Scale = Vector3.One;
+            var visual = ElementCompositionPreview.GetElementVisual(button);
+            visual.StopAnimation(nameof(Visual.Offset));
+            visual.StopAnimation(nameof(Visual.Opacity));
+            visual.StopAnimation(nameof(Visual.Scale));
+            visual.Offset = _toolBaseOffsets[button];
+            visual.Opacity = 1;
+            visual.Scale = Vector3.One;
         }
 
         if (_logoButton is not null)
         {
-            _logoButton.Opacity = 1;
-            ElementCompositionPreview.GetElementVisual(_logoButton).Scale = Vector3.One;
+            var visual = ElementCompositionPreview.GetElementVisual(_logoButton);
+            visual.StopAnimation(nameof(Visual.Offset));
+            visual.StopAnimation(nameof(Visual.Opacity));
+            visual.StopAnimation(nameof(Visual.Scale));
+            visual.Offset = _logoBaseOffset;
+            visual.Opacity = 1;
+            visual.Scale = Vector3.One;
         }
     }
 
@@ -544,6 +600,7 @@ public sealed partial class WelcomeHero : UserControl
         var point = e.GetCurrentPoint(HeroRoot).Position;
         var x = (float)((point.X / HeroRoot.ActualWidth - 0.5) * 8);
         var y = (float)((point.Y / HeroRoot.ActualHeight - 0.5) * 8);
+        _sceneVisual.StopAnimation(nameof(Visual.Offset));
         _sceneVisual.Offset = _sceneBaseOffset + new Vector3(x, y, 0);
     }
 
