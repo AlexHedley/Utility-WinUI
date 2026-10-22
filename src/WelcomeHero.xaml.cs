@@ -76,8 +76,7 @@ public sealed partial class WelcomeHero : UserControl
             {
                 Content = content,
                 Tag = tool.Name,
-                Style = (Style)Resources["ToolTileStyle"],
-                Opacity = 0
+                Style = (Style)Resources["ToolTileStyle"]
             };
             AutomationProperties.SetName(button, tool.Name);
             Grid.SetRow(button, tool.Row);
@@ -143,8 +142,7 @@ public sealed partial class WelcomeHero : UserControl
             CornerRadius = new CornerRadius(43),
             Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(Color.FromArgb(255, 15, 23, 42)),
             BorderBrush = new Microsoft.UI.Xaml.Media.SolidColorBrush(Color.FromArgb(255, 56, 189, 248)),
-            BorderThickness = new Thickness(2),
-            Opacity = 0
+            BorderThickness = new Thickness(2)
         };
         AutomationProperties.SetName(_logoButton, "Replay the welcome animation");
         _logoButton.Click += (_, _) => PlayIntro();
@@ -162,6 +160,7 @@ public sealed partial class WelcomeHero : UserControl
 
         _initialized = true;
         _compositor = ElementCompositionPreview.GetElementVisual(HeroRoot).Compositor;
+        ElementCompositionPreview.GetElementVisual(ImpactFlash).Opacity = 0;
         _sceneVisual = ElementCompositionPreview.GetElementVisual(ToolGrid);
         _sceneBaseOffset = _sceneVisual.Offset;
         CreateStars();
@@ -238,7 +237,6 @@ public sealed partial class WelcomeHero : UserControl
             {
                 Width = size,
                 Height = size,
-                Opacity = 0,
                 Fill = new Microsoft.UI.Xaml.Media.SolidColorBrush(
                     index % 7 == 0
                         ? Color.FromArgb(190, 56, 189, 248)
@@ -284,7 +282,6 @@ public sealed partial class WelcomeHero : UserControl
             {
                 Height = 2,
                 Background = new Microsoft.UI.Xaml.Media.SolidColorBrush(colors[index % colors.Length]),
-                Opacity = 0,
                 IsHitTestVisible = false
             };
             var particle = new StreakParticle(streak, index * 20, 0.68 + (index % 4) * 0.08);

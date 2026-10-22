@@ -47,8 +47,7 @@
                     VerticalAlignment="Center"
                     Background="White"
                     CornerRadius="60"
-                    IsHitTestVisible="False"
-                    Opacity="0" />
+                    IsHitTestVisible="False" />
             </Grid>
         </Border>
         <TextBlock
