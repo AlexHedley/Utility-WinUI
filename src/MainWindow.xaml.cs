@@ -3,6 +3,7 @@ using System.IO;
 
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
 
 namespace UtilityWinUI;
 
@@ -18,8 +19,28 @@ public sealed partial class MainWindow : Window
             AppWindow.SetIcon(iconPath);
         }
 
+        ContentFrame.Navigated += ContentFrame_Navigated;
         Navigation.SelectedItem = Navigation.MenuItems[0];
         ContentFrame.Navigate(typeof(UtilityPage), "Home");
+    }
+
+    private void ContentFrame_Navigated(object sender, NavigationEventArgs e)
+    {
+        if (e.Content is UtilityPage page && e.Parameter as string == "Home")
+        {
+            page.ToolInvoked += SelectTool;
+        }
+    }
+
+    private void SelectTool(string tool)
+    {
+        var item = Navigation.MenuItems
+            .OfType<NavigationViewItem>()
+            .FirstOrDefault(menuItem => string.Equals(menuItem.Tag as string, tool, StringComparison.Ordinal));
+        if (item is not null)
+        {
+            Navigation.SelectedItem = item;
+        }
     }
 
     private void Navigation_SelectionChanged(
