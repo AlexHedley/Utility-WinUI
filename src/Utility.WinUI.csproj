@@ -6,7 +6,7 @@
     <UseWinUI>true</UseWinUI>
     <ApplicationIcon>../assets/utility-icon.ico</ApplicationIcon>
     <WindowsPackageType>None</WindowsPackageType>
-    <EnableMsixTooling>false</EnableMsixTooling>
+    <EnableMsixTooling>true</EnableMsixTooling>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>UtilityWinUI</RootNamespace>

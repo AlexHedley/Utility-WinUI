@@ -98,13 +98,14 @@ flowchart LR
     Change["Push / pull request"] --> Tests[".NET 10 core tests"]
     Tests --> Build["Windows app build"]
     Build --> Publish["Self-contained win-x64 publish"]
-    Publish --> Artifact["Workflow ZIP artifact"]
+    Publish --> Artifact["Workflow ZIP and unsigned MSIX"]
     Tag["v* tag / manual release"] --> ReleaseTests["Core tests"]
-    ReleaseTests --> ReleasePublish["Self-contained win-x64 publish"]
-    ReleasePublish --> GitHubRelease["GitHub Release ZIP"]
+    ReleaseTests --> ReleasePublish["Self-contained win-x64 publish and MSIX"]
+    ReleasePublish --> Sign["Sign MSIX and generate App Installer feed"]
+    Sign --> GitHubRelease["GitHub Release ZIP, MSIX, and App Installer"]
 ```
 
-The build/test workflow runs on Windows and publishes a downloadable workflow artifact. The release workflow reruns the tests and attaches the ZIP to a GitHub Release. Workflow definitions are in `.github/workflows/`.
+The build/test workflow runs on Windows and publishes the ZIP and unsigned MSIX as downloadable workflow artifacts. The release workflow reruns the tests, signs the MSIX with the configured publisher certificate, and publishes it with an App Installer feed that resolves assets from the latest GitHub Release. Workflow definitions are in `.github/workflows/`.
 
 ## Repository map
 
