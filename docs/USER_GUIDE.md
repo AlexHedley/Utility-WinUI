@@ -2,6 +2,8 @@
 
 Utility is a small, local-first Windows desktop toolbox. Select a tool in the navigation pane, enter or paste text, choose an action, and read the result in the output field. Use **Clear** to reset the current input and output.
 
+The Home page opens with a short animated tool intro. Select a tool tile to open it, point at a tile to identify it, or select the Utility mark to replay the animation. Windows animation effects settings are respected, and decorative motion is disabled in High Contrast.
+
 ## Tools
 
 ### HTML encoder
@@ -94,6 +96,7 @@ The WinUI application requires Windows to run and build in its supported environ
 - `src/Utility.WinUI.csproj`: WinUI 3 desktop executable and Windows App SDK reference.
 - `src/MainWindow.*`: navigation shell and content frame.
 - `src/UtilityPage.*`: reusable tool page, descriptions, and actions.
+- `src/WelcomeHero.*`: animated Home scene and direct tool shortcuts.
 - `src/Utility.Core/`: cross-platform operation dispatch and transformations.
 - `tests/Utility.Core.Tests/`: operation-level xUnit tests.
 - `ARCHITECTURE.md`: component, data-flow, navigation, and delivery diagrams.

@@ -12,7 +12,10 @@ public sealed partial class UtilityPage : Page
     public UtilityPage()
     {
         InitializeComponent();
+        HomeHero.ToolInvoked += tool => ToolInvoked?.Invoke(tool);
     }
+
+    public event Action<string>? ToolInvoked;
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
     {
