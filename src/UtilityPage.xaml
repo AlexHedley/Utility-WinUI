@@ -1,0 +1,48 @@
+<Page
+    x:Class="UtilityWinUI.UtilityPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <ScrollViewer>
+        <StackPanel Spacing="24" Margin="32,28,32,32">
+            <StackPanel Spacing="8">
+                <TextBlock x:Name="TitleText" Style="{ThemeResource TitleTextBlockStyle}" />
+                <TextBlock x:Name="DescriptionText" Style="{ThemeResource BodyTextBlockStyle}" TextWrapping="Wrap" />
+            </StackPanel>
+
+            <StackPanel x:Name="HomePanel" Spacing="12" Visibility="Collapsed">
+                <TextBlock Text="A collection of small, practical tools for everyday work." TextWrapping="Wrap" />
+                <TextBlock Text="Choose a tool from the navigation menu to get started." TextWrapping="Wrap" />
+            </StackPanel>
+
+            <Border
+                x:Name="ToolPanel"
+                Padding="20"
+                CornerRadius="8"
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                Visibility="Collapsed">
+                <StackPanel Spacing="16">
+                    <TextBox
+                        x:Name="InputBox"
+                        Header="Input"
+                        AcceptsReturn="True"
+                        MinHeight="190"
+                        TextWrapping="Wrap"
+                        VerticalAlignment="Top"
+                        VerticalContentAlignment="Top" />
+                    <StackPanel x:Name="ActionsPanel" Orientation="Horizontal" Spacing="8" />
+                    <TextBox
+                        x:Name="OutputBox"
+                        Header="Output"
+                        AcceptsReturn="True"
+                        IsReadOnly="True"
+                        MinHeight="150"
+                        TextWrapping="Wrap"
+                        VerticalAlignment="Top"
+                        VerticalContentAlignment="Top" />
+                    <TextBlock x:Name="StatusText" TextWrapping="Wrap" />
+                </StackPanel>
+            </Border>
+        </StackPanel>
+    </ScrollViewer>
+</Page>

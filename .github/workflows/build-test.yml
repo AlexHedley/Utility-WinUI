@@ -1,0 +1,51 @@
+name: Build and test
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-test:
+    runs-on: windows-2022
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Run tests
+        run: dotnet test tests/Utility.Core.Tests/Utility.Core.Tests.csproj --configuration Release
+
+      - name: Build app
+        run: dotnet build src/Utility.WinUI.csproj --configuration Release
+
+      - name: Publish self-contained app
+        run: >-
+          dotnet publish src/Utility.WinUI.csproj
+          --configuration Release
+          --runtime win-x64
+          --self-contained true
+          --output artifacts/Utility-WinUI-win-x64
+          -p:WindowsAppSDKSelfContained=true
+          -p:WindowsPackageType=None
+
+      - name: Package app
+        run: Compress-Archive -Path artifacts/Utility-WinUI-win-x64/* -DestinationPath artifacts/Utility-WinUI-win-x64.zip
+        shell: pwsh
+
+      - name: Upload app artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Utility-WinUI-win-x64
+          path: artifacts/Utility-WinUI-win-x64.zip
+          if-no-files-found: error
